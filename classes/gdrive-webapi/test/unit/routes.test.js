@@ -2,6 +2,22 @@ import { describe, test, expect, jest } from '@jest/globals'
 import Routes from './../../src/routes.js'
 
 describe('#Routes test suite', () => {
+  const defaultParams = {
+    request: {
+      headers: {
+        'Content-Type': 'multipart/from-data'
+      },
+      method: '',
+      body: {}
+    },
+    response: {
+      setHeader: jest.fn(),
+      writeHead: jest.fn(),
+      end: jest.fn()
+    },
+    values: () => Object.values(defaultParams)
+  }
+
   describe('#setSocketInstance', () => {
     test('setSocket should store io instance', () => {
       const routes = new Routes()
@@ -16,22 +32,6 @@ describe('#Routes test suite', () => {
   })
 
   describe('#handler', () => {
-    const defaultParams = {
-      request: {
-        headers: {
-          'Content-Type': 'multipart/from-data'
-        },
-        method: '',
-        body: {}
-      },
-      response: {
-        setHeader: jest.fn(),
-        writeHead: jest.fn(),
-        end: jest.fn()
-      },
-      values: () => Object.values(defaultParams)
-    }
-
     test('given an inexistent route ir should choose default route', async () => {
       const routes = new Routes()
       const params = {
@@ -88,6 +88,33 @@ describe('#Routes test suite', () => {
 
       await routes.handler(...params.values())
       expect(routes.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('#get', () => {
+    test('given method GET it should list all files downloaded', async () => {
+      const routes = new Routes()
+      const params = {
+        ...defaultParams
+      }
+      const filesStatusesMock = [
+        {
+          size: '39 B',
+          lastModified: '2021-09-07T22:47:30.250Z',
+          owner: 'lymreynaldo',
+          file: 'file-for-testing.txt'
+        }
+      ]
+      jest
+        .spyOn(routes.fileHelper, routes.fileHelper.getFilesStatus.name)
+        .mockResolvedValue(filesStatusesMock)
+
+      params.request.method = 'GET'
+      await routes.handler(...params.values())
+      expect(params.response.writeHead).toHaveBeenCalledWith(200)
+      expect(params.response.end).toHaveBeenCalledWith(
+        JSON.stringify(filesStatusesMock)
+      )
     })
   })
 })
