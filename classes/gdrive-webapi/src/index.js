@@ -1,6 +1,7 @@
 import https from 'https'
 import fs from 'fs'
 import { logger } from './logger.js'
+import { Server } from 'socket.io'
 
 const PORT = process.env.PORT || 3000
 
@@ -12,6 +13,15 @@ const localHostSSL = {
 const server = https.createServer(localHostSSL, (req, res) => {
   res.end('hello world')
 })
+
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    credentials: false
+  }
+})
+
+io.on('connection', (socket) => logger.info(`someone connected: ${socket.id}`))
 
 const startServer = () => {
   const { address, port } = server.address()
