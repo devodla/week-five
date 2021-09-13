@@ -16,7 +16,7 @@ export default class TestUtil {
 
   static generateReadableStream(data) {
     return new Readable({
-      // objectMode: true,
+      objectMode: true,
       read() {
         for (const item of data) {
           this.push(item)
