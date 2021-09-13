@@ -4,7 +4,7 @@ import fs from 'fs'
 import { logger } from './logger.js'
 
 export default class UploadHandler {
-  constructor({ io, socketId, downloadsFolder, messageTimeDelay = 200 }) {
+  constructor({ io, socketId, downloadsFolder, messageTimeDelay = 2000 }) {
     this.io = io
     this.socketId = socketId
     this.downloadsFolder = downloadsFolder
